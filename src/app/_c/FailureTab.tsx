@@ -30,24 +30,24 @@ export function FailureTab({ openInConsole }: { openInConsole: (variant: "guarde
   return (
     <div className="space-y-5">
       <Panel>
-        <p className="label">deliberate failure test</p>
-        <h2 className="mt-1 text-2xl font-semibold tracking-tight">The Echo Chamber</h2>
+        <p className="label">case file 03</p>
+        <h2 className="display mt-2 text-[56px]">The Echo <span className="serif-i text-refuse">Chamber</span></h2>
         <p className="mt-2 max-w-3xl text-[15px] leading-relaxed text-mute">
           The scariest failure for a confidence-based system isn’t low confidence. It’s <b className="text-ink">high confidence built from one poisoned source</b>. An attacker files a refund, injects instructions into the ticket, and
           attaches four “independent” documents that all come from the same place. A naive evidence-summing engine sees five agreeing signals and approves with 99% confidence.
         </p>
-        <blockquote className="mt-4 max-w-3xl rounded-md border border-line bg-bg/50 p-4 font-mono text-xs leading-relaxed text-mute">
-          <span className="label block pb-1">the ticket (untrusted data)</span>
+        <blockquote className="mt-5 max-w-3xl -rotate-[0.6deg] border-[1.5px] border-ink bg-ink p-5 font-mono text-[12.5px] leading-relaxed text-sun shadow-[6px_6px_0_var(--color-pink)]">
+          <span className="mb-2 inline-block bg-pink px-1.5 py-0.5 text-[10.5px] font-bold uppercase tracking-[0.1em] text-ink">the ticket · untrusted data</span><br />
           {echo.ticketText}
-          <span className="mt-2 block text-faint">+ {echo.supportingDocs} attached documents · $ {echo.amount} · customer {echo.customerTenureDays} days old · card refund</span>
+          <span className="mt-2 block text-panel/60">+ {echo.supportingDocs} attached documents · $ {echo.amount} · customer {echo.customerTenureDays} days old · card refund</span>
         </blockquote>
-        <div className="mt-4 flex gap-2">
+        <div className="mt-6 flex flex-wrap gap-3">
           <Btn small onClick={() => openInConsole("naive")}>Open in console as v1 (guard OFF)</Btn>
           <Btn small onClick={() => openInConsole("guarded")}>Open as v2 (guard ON)</Btn>
         </div>
       </Panel>
 
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="stagger grid gap-5 lg:grid-cols-3">
         <Stage n="v1" title="Naive evidence sum" d={v1} bad note="Four attachments, each counted as independent corroboration, plus a ticket that claims it was “verified”. This is the bug." />
         <Stage n="v2a" title="+ Provenance collapse + integrity signal" d={v2a} note="Requester-supplied documents share ONE source, so they count once. Instruction-like text becomes negative evidence. Confidence collapses, but no hard rule yet." />
         <Stage n="v2b" title="+ Hard rule: instructions in content" d={v2b} good note="Defence in depth: text that addresses the decision layer is a G0 invariant, so even a miscalibrated belief can’t approve it. Routed to a human." />
@@ -70,7 +70,7 @@ export function FailureTab({ openInConsole }: { openInConsole: (variant: "guarde
           </div>
           <Salami />
         </div>
-        <ul className="mt-6 space-y-1.5 border-t border-line pt-4 text-sm text-mute">
+        <ul className="mt-6 space-y-2 border-t-[1.5px] border-dashed border-ink pt-4 text-[14px] text-mute">
           <li><b className="text-ink">This breaks when…</b> a slow drip stays under the 30-day window forever (one refund a month never trips velocity).</li>
           <li><b className="text-ink">…</b> the signal weights are wrong in a way that the history can’t reveal (calibration only sees outcomes someone bothered to label).</li>
           <li><b className="text-ink">…</b> the pre-mortem LLM is silent: doubt-only means a broken sensor fails <i>toward the rules</i>, not toward safety it never had.</li>
@@ -86,14 +86,15 @@ function Stage({ n, title, d, note, bad, good }: { n: string; title: string; d: 
   const counted = d.evidenceUsed.filter((e) => !e.collapsedInto && Math.abs(e.llr) > 0);
   const collapsed = d.evidenceUsed.filter((e) => e.collapsedInto);
   return (
-    <section className="rounded-lg border bg-panel p-4" style={{ borderColor: bad ? tint("var(--color-refuse)", 55) : good ? tint("var(--color-execute)", 45) : "var(--color-line)" }}>
-      <div className="flex items-baseline justify-between">
-        <span className="font-mono text-xs text-faint">{n}</span>
-        {bad && <span className="font-mono text-[10px] text-refuse">▲ FAILURE</span>}
-        {good && <span className="font-mono text-[10px] text-execute">✓ HOLDS</span>}
+    <section className="sticker overflow-hidden transition-transform duration-300 hover:-translate-y-1">
+      <div className="flex items-center justify-between border-b-[1.5px] border-ink px-4 py-2" style={{ background: bad ? "var(--color-pink)" : good ? "var(--color-blue)" : "var(--color-raised)", color: good ? "var(--color-panel)" : "var(--color-ink)" }}>
+        <span className="display text-[24px]">{n}</span>
+        {bad && <span className="font-mono text-[11px] font-bold">▲ FAILURE</span>}
+        {good && <span className="font-mono text-[11px] font-bold">✓ HOLDS</span>}
       </div>
-      <h3 className="mt-1 text-sm font-semibold leading-tight">{title}</h3>
-      <div className="mt-3 text-[40px] font-semibold leading-none tracking-[-0.03em]" style={{ color: m.color }}>{m.label.charAt(0) + m.label.slice(1).toLowerCase()}</div>
+      <div className="p-4">
+      <h3 className="text-[15px] font-bold leading-tight">{title}</h3>
+      <div className="display misreg mt-3 text-[64px]" style={{ color: m.color }}>{m.label}</div>
       <p className="mt-1 font-mono text-xs text-mute">{pct(d.confidence.mid)} confident · {counted.length} signals counted · {collapsed.length} collapsed</p>
       <p className="mt-3 text-xs leading-relaxed text-mute">{note}</p>
       <ul className="mt-3 space-y-0.5 font-mono text-[10.5px]">
@@ -104,6 +105,7 @@ function Stage({ n, title, d, note, bad, good }: { n: string; title: string; d: 
           </li>
         ))}
       </ul>
+      </div>
     </section>
   );
 }
@@ -131,7 +133,7 @@ function Salami() {
         <>
           <div className="mt-3 flex flex-wrap gap-1">
             {run.map((r, i) => (
-              <span key={i} className="grid h-7 w-7 place-items-center rounded font-mono text-[10px]" style={{ background: tint(OUTCOME[r.o].color, 22), color: OUTCOME[r.o].color, border: `1px solid ${tint(OUTCOME[r.o].color, 45)}` }} title={`#${i + 1}: ${r.o} (30-day total $${r.total})`}>
+              <span key={i} className="rise grid h-8 w-8 place-items-center border-[1.5px] border-ink font-mono text-[11px] font-bold" style={{ animationDelay: `${i * 45}ms`, background: r.o === "execute" ? "var(--color-blue)" : r.o === "refuse" ? "var(--color-pink)" : "var(--color-sun)", color: r.o === "execute" ? "var(--color-panel)" : "var(--color-ink)" }} title={`#${i + 1}: ${r.o} (30-day total $${r.total})`}>
                 {i + 1}
               </span>
             ))}

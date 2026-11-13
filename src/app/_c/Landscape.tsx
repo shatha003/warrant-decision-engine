@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef } from "react";
 import type { Decision, Pack } from "@/core/types";
-import { OUTCOME, OUTCOMES, money } from "./shared";
+import { OUTCOME, OUTCOMES, SlamWord, money } from "./shared";
 
 /*
   The decision landscape.
@@ -68,12 +68,14 @@ export function Landscape({ d, pack }: { d: Decision; pack: Pack<any> }) {
     if (!g) return;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const C = {
-      bg: css("--color-bg", "#08090b"),
-      ink: css("--color-ink", "#eceef1"),
-      mute: css("--color-mute", "#9aa0aa"),
-      exec: css("--color-execute", "#5c7cff"),
-      red: css("--color-refuse", "#ff5f45"),
-      mono: css("--font-geist-mono", "monospace"),
+      bg: css("--color-bg", "#efe8d8"),
+      ink: css("--color-ink", "#17140f"),
+      mute: css("--color-mute", "#554d41"),
+      sun: css("--color-sun", "#ffd12e"),
+      pink: css("--color-pink", "#ff3d8b"),
+      exec: css("--color-execute", "#2340f5"),
+      red: css("--color-refuse", "#d3105e"),
+      mono: css("--font-jet", "monospace"),
     };
     const colorOf = (i: number) => (OUTCOMES[i] === "execute" ? C.exec : OUTCOMES[i] === "refuse" ? C.red : C.ink);
 
@@ -248,11 +250,12 @@ export function Landscape({ d, pack }: { d: Decision; pack: Pack<any> }) {
       const bx = cx(ci);
       const by = prof(bx);
       const glow = g.createRadialGradient(bx, by - 8, 0, bx, by - 8, 120);
-      glow.addColorStop(0, colorOf(ci) + "55");
-      glow.addColorStop(1, colorOf(ci) + "00");
-      g.globalCompositeOperation = "lighter";
+      const halo = OUTCOMES[ci] === "execute" || OUTCOMES[ci] === "refuse" ? colorOf(ci) : C.sun;
+      glow.addColorStop(0, halo + "88");
+      glow.addColorStop(1, halo + "00");
+      g.globalCompositeOperation = "multiply";
       g.fillStyle = glow;
-      g.fillRect(bx - 130, by - 140, 260, 220);
+      g.fillRect(bx - 125, by - 133, 250, 250);
       g.globalCompositeOperation = "source-over";
 
       // particles
@@ -340,15 +343,18 @@ export function Landscape({ d, pack }: { d: Decision; pack: Pack<any> }) {
       const b = S.ball;
       const X = b.x * W;
       const col = colorOf(ci);
-      g.save();
-      g.shadowColor = col;
-      g.shadowBlur = 26;
-      g.fillStyle = col;
+      g.fillStyle = C.ink;
       g.beginPath();
-      g.arc(X, b.y, R, 0, Math.PI * 2);
+      g.arc(X + 3, b.y + 3, R + 1.5, 0, Math.PI * 2);
       g.fill();
-      g.restore();
-      g.strokeStyle = C.bg;
+      g.fillStyle = OUTCOMES[ci] === "execute" || OUTCOMES[ci] === "refuse" ? col : C.sun;
+      g.beginPath();
+      g.arc(X, b.y, R + 1.5, 0, Math.PI * 2);
+      g.fill();
+      g.lineWidth = 2;
+      g.strokeStyle = C.ink;
+      g.stroke();
+      g.strokeStyle = C.ink;
       g.lineWidth = 2;
       g.beginPath();
       g.moveTo(X, b.y);
@@ -371,17 +377,22 @@ export function Landscape({ d, pack }: { d: Decision; pack: Pack<any> }) {
         const chosen = i === ci;
         g.font = `${chosen ? 700 : 500} ${narrow ? 9 : 11}px ${C.mono}`;
         (g as any).letterSpacing = narrow ? "0.5px" : "2px";
-        g.fillStyle = chosen ? col : C.mute;
-        g.fillText(OUTCOME[o].label, cx(i), H - 34);
+        // left-align from the measured width: canvas centring ignores letter-spacing in some engines
+        const tw = g.measureText(OUTCOME[o].label).width;
+        const lx = cx(i) - tw / 2;
+        if (chosen) {
+          g.fillStyle = C.sun;
+          g.fillRect(lx - 6, H - 43, tw + 10, 18);
+        }
+        g.textAlign = "left";
+        g.fillStyle = chosen ? (OUTCOMES[i] === "execute" || OUTCOMES[i] === "refuse" ? col : C.ink) : C.mute;
+        g.fillText(OUTCOME[o].label, lx, H - 34);
+        g.textAlign = "center";
         g.font = `500 ${narrow ? 10 : 11}px ${C.mono}`;
         (g as any).letterSpacing = "0px";
         g.fillStyle = chosen ? C.ink : C.mute;
         const v = T.loss[i];
         g.fillText(v === null ? "n/a" : money(unit.current, v), cx(i), H - 16);
-        if (chosen) {
-          g.fillStyle = col;
-          g.fillRect(cx(i) - 14, H - 48, 28, 2);
-        }
       }
       (g as any).letterSpacing = "0px";
     };
@@ -414,15 +425,15 @@ export function Landscape({ d, pack }: { d: Decision; pack: Pack<any> }) {
 
   const o = OUTCOME[d.outcome];
   return (
-    <section className="relative overflow-hidden border border-line bg-bg">
+    <section className="reveal relative overflow-hidden border-[1.5px] border-ink bg-bg shadow-[6px_6px_0_var(--color-ink)]">
       <canvas
         ref={ref}
         className="block h-[440px] w-full"
         role="img"
         aria-label={`Decision landscape. Five wells whose depth is the expected loss of each response. The case settles in ${o.label}.`}
       />
-      <div className="pointer-events-none absolute left-5 top-4 max-w-[46ch] [text-shadow:0_1px_10px_#08090b] sm:left-6 sm:top-5">
-        <p className="font-mono text-[10.5px] uppercase tracking-[0.14em] text-mute">Decision landscape</p>
+      <div className="pointer-events-none absolute left-5 top-4 max-w-[46ch] [text-shadow:0_0_6px_var(--color-bg),0_0_14px_var(--color-bg)] sm:left-6 sm:top-5">
+        <p className="display text-[30px]">Decision landscape</p>
         <p className="mt-1.5 hidden text-[13px] leading-snug text-ink/85 sm:block">Each well is one possible response, dug as deep as it is cheap. The case rolls into the one it is allowed to take.</p>
         <p className="mt-2 hidden flex-wrap gap-x-4 font-mono text-[10.5px] text-mute sm:flex">
           <span><i className="mr-1.5 inline-block h-2 w-[2px] bg-execute align-middle" />evidence for acting</span>
@@ -433,8 +444,8 @@ export function Landscape({ d, pack }: { d: Decision; pack: Pack<any> }) {
       </div>
       <div className="pointer-events-none absolute right-5 top-4 text-right sm:right-6 sm:top-5">
         <p className="font-mono text-[10.5px] uppercase tracking-[0.14em] text-mute">settles in</p>
-        <p key={d.outcome} className="rise text-[34px] font-semibold leading-none tracking-[-0.03em] sm:text-[44px]" style={{ color: o.color }}>
-          {o.label.charAt(0) + o.label.slice(1).toLowerCase()}
+        <p className="display misreg text-[48px] sm:text-[72px]" style={{ color: o.color }}>
+          <SlamWord text={o.label} />
         </p>
         <p className="mt-1.5 font-mono text-[11px] text-mute">{Math.round(d.confidence.mid * 100)}% confident acting is right</p>
       </div>

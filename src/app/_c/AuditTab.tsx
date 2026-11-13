@@ -75,18 +75,17 @@ export function AuditTab({
         </div>
         {verdict && (
           <div
-            className="rise mt-4 rounded-md border px-4 py-3 text-sm"
+            className="rise mt-5 border-[1.5px] border-ink px-4 py-3 text-[14.5px] shadow-[4px_4px_0_var(--color-ink)]"
             style={{
-              borderColor: tint(verdict.ok ? "var(--color-execute)" : "var(--color-refuse)", 45),
-              background: tint(verdict.ok ? "var(--color-execute)" : "var(--color-refuse)", 9),
-              color: verdict.ok ? "var(--color-execute)" : "var(--color-refuse)",
+              background: verdict.ok ? "var(--color-blue)" : "var(--color-pink)",
+              color: verdict.ok ? "var(--color-panel)" : "var(--color-ink)",
             }}
             role="status"
           >
             {verdict.ok ? (
-              <>✓ Chain intact: {verdict.length} records, every hash links to its predecessor and every seal was issued by this server.</>
+              <><b className="display mr-2 text-[24px]">Chain intact.</b>{verdict.length} records, every hash links to its predecessor and every seal was issued by this server.</>
             ) : (
-              <>✕ <b>Chain broken at record #{verdict.brokenAt}.</b> {verdict.reason}.</>
+              <><b className="display mr-2 text-[24px]">Chain broken at #{verdict.brokenAt}.</b> {verdict.reason}.</>
             )}
           </div>
         )}
@@ -94,10 +93,10 @@ export function AuditTab({
 
       {records.length === 0 ? (
         <Panel>
-          <p className="text-sm text-mute">Nothing logged yet. Go to <b className="text-ink">Decide</b>, pick a scenario, and press <b className="text-ink">Decide &amp; log</b>.</p>
+          <div className="flex flex-wrap items-center gap-6 py-4"><span className="display text-[72px] text-line">0</span><p className="max-w-[48ch] text-[15px] text-mute">Nothing logged yet. Go to <b className="text-ink">Decide</b>, pick a case, and press <mark className="font-semibold text-ink">Decide and log</mark>. Every record lands here, sealed.</p></div>
         </Panel>
       ) : (
-        <ol className="space-y-2">
+        <ol className="stagger space-y-3">
           {[...records].reverse().map((r) => {
             const b = r.body as any;
             const outcome: Outcome | null = r.kind === "decision" ? b.decision?.outcome : null;
@@ -107,13 +106,13 @@ export function AuditTab({
             return (
               <li
                 key={r.id}
-                className="rounded-lg border bg-panel"
-                style={{ borderColor: broken ? "var(--color-refuse)" : "var(--color-line)", opacity: after ? 0.55 : 1 }}
+                className="border-[1.5px] border-ink transition-[transform,box-shadow] duration-200 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[5px_5px_0_var(--color-ink)]"
+                style={{ background: broken ? "var(--color-pink)" : "var(--color-panel)", boxShadow: broken ? "5px 5px 0 var(--color-ink)" : undefined, opacity: after ? 0.5 : 1 }}
               >
                 <details>
                   <summary className="flex cursor-pointer list-none flex-wrap items-center gap-3 px-4 py-3">
-                    <span className="font-mono text-xs text-faint">#{r.seq}</span>
-                    <span className="rounded bg-raised px-1.5 py-0.5 font-mono text-[10px] uppercase text-mute">{r.kind}</span>
+                    <span className="display text-[26px] leading-none">#{r.seq}</span>
+                    <span className="bg-ink px-1.5 py-0.5 font-mono text-[10px] uppercase text-sun">{r.kind}</span>
                     <span className="font-mono text-xs text-mute">{r.packId}</span>
                     {outcome && <Tag o={outcome} size="sm" />}
                     {r.kind === "execution" && (
@@ -121,11 +120,11 @@ export function AuditTab({
                         {b.ok ? "✓ ran with valid warrant" : `✕ blocked: ${b.rejected}`}
                       </span>
                     )}
-                    {tamperedSeq === r.seq && <span className="rounded bg-refuse/15 px-1.5 py-0.5 font-mono text-[10px] text-refuse">edited by attacker</span>}
+                    {tamperedSeq === r.seq && <span className="rough bg-refuse px-1.5 py-0.5 font-mono text-[10px] font-bold text-panel">EDITED BY ATTACKER</span>}
                     {rp && <span className="font-mono text-[10px]" style={{ color: rp.ok ? "var(--color-execute)" : "var(--color-refuse)" }}>{rp.ok ? "✓ replays identically" : "✕ " + rp.note}</span>}
                     <span className="ml-auto font-mono text-[10px] text-faint">{r.hash.slice(0, 10)}…</span>
                   </summary>
-                  <div className="space-y-3 border-t border-line px-4 py-3">
+                  <div className="space-y-3 border-t-[1.5px] border-dashed border-ink px-4 py-3">
                     <p className="text-sm">{r.kind === "decision" ? b.decision?.action : r.kind === "execution" ? b.action : ""}</p>
                     {r.kind === "decision" && <p className="text-xs leading-relaxed text-mute">{b.decision?.reason}</p>}
                     <dl className="grid gap-x-6 gap-y-1 font-mono text-[11px] sm:grid-cols-[110px_1fr]">
@@ -136,7 +135,7 @@ export function AuditTab({
                     </dl>
                     <details>
                       <summary className="cursor-pointer font-mono text-[11px] text-faint">full replayable body (inputs · signals · trace)</summary>
-                      <pre className="scroll-thin mt-2 max-h-72 overflow-auto rounded bg-bg p-3 font-mono text-[10.5px] leading-snug text-mute">{JSON.stringify(r.body, null, 2)}</pre>
+                      <pre className="scroll-thin mt-2 max-h-72 overflow-auto bg-ink p-3 font-mono text-[10.5px] leading-snug text-sun">{JSON.stringify(r.body, null, 2)}</pre>
                     </details>
                     {r.kind === "decision" && <Btn small tone="danger" disabled={tamperedSeq !== null} onClick={() => tamper(r.seq)}>Tamper with this record</Btn>}
                   </div>
@@ -187,7 +186,7 @@ function TimeMachine({ pack }: { pack: Pack<any> }) {
           <Slider label="Autonomous authority" value={auth} set={setAuth} fmtv={(v) => `×${v.toFixed(2)}  (${Math.round(pack.authority * v).toLocaleString()} ${pack.unit})`} />
           <Slider label="Cost of a human review" value={human} set={setHuman} fmtv={(v) => `×${v.toFixed(2)}  (${Math.round(pack.loss.cHuman * v)} ${pack.unit})`} />
           <p className="font-mono text-sm">
-            <b className="text-xl" style={{ color: result.changed ? "var(--color-defer)" : "var(--color-execute)" }}>{result.changed}</b> of {N} past decisions would change
+            <b className="display mr-2 text-[64px] align-middle" style={{ color: result.changed ? "var(--color-refuse)" : "var(--color-execute)" }}>{result.changed}</b> of {N} past decisions would change
           </p>
           <ul className="space-y-1.5">
             {result.examples.map((e, i) => (

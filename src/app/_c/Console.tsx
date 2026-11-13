@@ -8,7 +8,7 @@ import type { Calibration } from "@/ledger/calibration";
 import type { SensorReport } from "@/sensors/llm";
 import { DecisionMap } from "./DecisionMap";
 import { Landscape } from "./Landscape";
-import { Btn, OUTCOME, OUTCOMES, Panel, Swatch, Tag, money, pct, tint } from "./shared";
+import { Btn, OUTCOME, OUTCOMES, Panel, SlamWord, Swatch, Tag, money, pct, tint } from "./shared";
 
 export type Input = Record<string, any>;
 
@@ -57,8 +57,6 @@ function serial(s: string) {
   const x = (h >>> 0).toString(16).toUpperCase().padStart(8, "0");
   return `W-${x.slice(0, 4)}-${x.slice(4)}`;
 }
-
-const titleCase = (s: string) => s.charAt(0) + s.slice(1).toLowerCase();
 
 export function Console(p: ConsoleProps) {
   const { pack, input, autonomy, stakeScale } = p;
@@ -150,9 +148,9 @@ export function Console(p: ConsoleProps) {
       {/* ─────────── docket + case file ─────────── */}
       <aside className="scroll-thin space-y-10 lg:sticky lg:top-24 lg:max-h-[calc(100dvh-7rem)] lg:self-start lg:overflow-y-auto lg:pr-3">
         <section>
-          <h2 className="text-[15px] font-semibold tracking-tight">Docket</h2>
+          <h2 className="display text-[44px]"><span className="overprint ink" data-text="Docket">Docket</span></h2>
           <p className="mt-1 text-[12.5px] leading-snug text-mute">{pack.scenarios.length} cases, each built to land on a specific outcome.</p>
-          <ol className="mt-3 border-t border-ink">
+          <ol className="mt-3 border-t-2 border-ink">
             {pack.scenarios.map((s) => {
               const active = s.id === p.scenarioId;
               return (
@@ -160,12 +158,11 @@ export function Console(p: ConsoleProps) {
                   <button
                     onClick={() => p.pickScenario(s.id)}
                     aria-current={active ? "true" : undefined}
-                    className="grid w-full grid-cols-[minmax(0,1fr)_auto] items-start gap-3 border-b border-line py-2.5 pl-3 pr-2 text-left transition-colors hover:bg-panel"
-                    style={active ? { background: "var(--color-panel)", boxShadow: "inset 3px 0 0 var(--color-ink)" } : undefined}
+                    className={`grid w-full grid-cols-[minmax(0,1fr)_auto] items-start gap-3 border-b border-ink/25 py-3 pl-3 pr-2 text-left transition-[background,padding] duration-300 ${active ? "bg-sun pl-4" : "hover:bg-panel hover:pl-4"}`}
                   >
                     <span>
-                      <span className="block text-[13.5px] font-medium leading-snug">{s.title}</span>
-                      {active && s.blurb && <span className="rise mt-1 block text-[12px] leading-snug text-mute">{s.blurb}</span>}
+                      <span className="block text-[14.5px] font-semibold leading-snug">{s.title}</span>
+                      {active && s.blurb && <span className="rise mt-1 block text-[12.5px] leading-snug text-ink/75">{s.blurb}</span>}
                     </span>
                     {s.expected && (
                       <span className="pt-0.5">
@@ -180,9 +177,9 @@ export function Console(p: ConsoleProps) {
         </section>
 
         <section>
-          <h2 className="text-[15px] font-semibold tracking-tight">Case file</h2>
+          <h2 className="display text-[44px]"><span className="overprint ink" data-text="Case file">Case file</span></h2>
           <p className="mt-1 text-[12.5px] leading-snug text-mute">Edit any field. The verdict is recomputed as you type.</p>
-          <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-4 border-t border-ink pt-4">
+          <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-4 border-t-2 border-ink pt-4">
             {pack.fields.map((f) => (
               <Field key={f.key} f={f} value={input[f.key]} onChange={(v) => p.setInput((c) => ({ ...c, [f.key]: v }))} />
             ))}
@@ -193,8 +190,8 @@ export function Console(p: ConsoleProps) {
       {/* ─────────── the instrument ─────────── */}
       <div className="min-w-0 space-y-10">
         {autonomy < 3 && (
-          <button onClick={p.goAutonomy} className="flex w-full flex-wrap items-baseline gap-x-3 gap-y-1 border border-ink bg-panel px-4 py-3 text-left text-[13px] leading-snug">
-            <span className="bg-ink px-1.5 py-0.5 font-mono text-[11px] font-semibold text-panel">{AUTONOMY_NAMES[autonomy]}</span>
+          <button onClick={p.goAutonomy} className="press flex w-full flex-wrap items-baseline gap-x-3 gap-y-1 border-[1.5px] border-ink bg-sun px-4 py-3 text-left text-[13.5px] leading-snug">
+            <span className="bg-ink px-1.5 py-0.5 font-mono text-[11px] font-semibold text-sun">{AUTONOMY_NAMES[autonomy]}</span>
             <span className="text-ink">
               {p.cal.autonomyReason}. Authority is reduced{autonomy === 0 ? " and every decision now needs a human" : ""}. <span className="underline underline-offset-2">Open calibration</span>
             </span>
@@ -203,11 +200,11 @@ export function Console(p: ConsoleProps) {
 
         <Landscape d={d} pack={pack} />
 
-        <article className="relative border border-line bg-panel shadow-[0_0_0_1px_rgba(255,255,255,0.03),0_40px_80px_-40px_rgba(0,0,0,0.9)]">
+        <article className="sticker relative shadow-[10px_10px_0_var(--color-ink)]">
           <Guilloche active={isExec} />
-          <header className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-b border-line px-6 py-3 md:px-10">
-            <span className="text-[13px] font-semibold tracking-tight">{isExec ? "Warrant to act" : "Stay of action"}</span>
-            <span className="flex flex-wrap gap-x-4 font-mono text-[11px] text-mute">
+          <header className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-b-[1.5px] border-ink px-6 py-3 transition-colors duration-500 md:px-10" style={{ background: isExec ? "var(--color-blue)" : "var(--color-ink)", color: "var(--color-panel)" }}>
+            <span className="display text-[22px]">{isExec ? "Warrant to act" : "Stay of action"}</span>
+            <span className="flex flex-wrap gap-x-4 font-mono text-[11px] opacity-80">
               <span>No. {serialNo}</span>
               <span>{pack.policyVersion}</span>
               <span>{AUTONOMY_NAMES[autonomy]}</span>
@@ -217,33 +214,33 @@ export function Console(p: ConsoleProps) {
           <div className="px-6 pt-8 md:px-10">
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
               <span className="text-[12px] text-mute">Proposed by the agent</span>
-              <span className="border border-line px-1.5 py-px font-mono text-[10.5px] text-mute">{fresh ? `logged, ${fresh.sensors.mode} sensors` : "draft, not logged"}</span>
+              <span className={`border border-ink px-1.5 py-px font-mono text-[10.5px] ${fresh ? "bg-ink text-sun" : "text-mute"}`}>{fresh ? `logged, ${fresh.sensors.mode} sensors` : "draft, not logged"}</span>
             </div>
             <p className="mt-2 font-mono text-[15px] leading-snug text-ink md:text-[16px]">{d.action}</p>
 
             <div className="relative mt-8">
-              <h2 aria-live="polite" className="pb-1 text-[60px] font-semibold leading-[0.95] tracking-[-0.04em] sm:text-[80px] lg:text-[96px]" style={{ color: dec.color }}>
-                {titleCase(dec.label)}
+              <h2 aria-live="polite" className="display misreg pb-1 text-[84px] sm:text-[128px] lg:text-[160px]" style={{ color: dec.color }}>
+                <SlamWord text={dec.label} />
               </h2>
               {fresh && (
                 <div key={`${fresh.key}${fresh.seq}`} className="stamp hidden md:block" style={{ color: dec.color }}>
-                  <div className="border-[3px] border-double px-4 py-2 text-center" style={{ borderColor: dec.color }}>
-                    <div className="font-mono text-[15px] font-bold tracking-[0.2em]">{dec.stamp}</div>
-                    <div className="mt-0.5 font-mono text-[10px] tracking-[0.12em]">AUDIT RECORD #{fresh.seq}</div>
+                  <div className="border-[5px] border-double px-5 py-2.5 text-center" style={{ borderColor: dec.color }}>
+                    <div className="display text-[34px] leading-none">{dec.stamp}</div>
+                    <div className="mt-1 font-mono text-[10.5px] font-bold tracking-[0.14em]">AUDIT RECORD #{fresh.seq}</div>
                   </div>
                 </div>
               )}
             </div>
             {d.shadowed && <p className="mt-3 font-mono text-[12px] text-ink">Shadow mode. The engine would have executed, but its calibration has not earned that right.</p>}
-            <p className="mt-4 max-w-[62ch] text-[15.5px] leading-relaxed text-ink/85">{d.reason}</p>
+            <p className="mt-4 max-w-[62ch] text-[17px] leading-relaxed text-ink/85">{d.reason}</p>
             {d.nextStep && (
               <p className="mt-3 max-w-[62ch] text-[13.5px] leading-relaxed text-mute">
-                <span className="font-semibold text-ink">Next.</span> {d.nextStep}
+                <span className="serif-i text-[1.25em] text-ink">Next,</span> {d.nextStep}
               </p>
             )}
           </div>
 
-          <div className="mt-9 border-t border-line px-6 py-5 md:px-10">
+          <div className="mt-9 border-t-[1.5px] border-ink px-6 py-5 md:px-10">
             <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
               <span className="text-[13px] font-medium">Confidence that acting is correct</span>
               <span className="font-mono text-[12.5px] text-mute">
@@ -253,7 +250,7 @@ export function Console(p: ConsoleProps) {
             <Ruler lo={d.confidence.lo} mid={d.confidence.mid} hi={d.confidence.hi} effective={d.confidence.effective} />
           </div>
 
-          <dl className="grid grid-cols-2 border-t border-line md:grid-cols-4">
+          <dl className="grid grid-cols-2 border-t-[1.5px] border-ink md:grid-cols-4">
             <Fig k="At stake" v={money(pack, d.exposure.harm)} />
             <Fig k="Risk if we act" v={`${Math.round(d.riskScore * 100)}`} unit="/100" />
             <Fig k="Reversibility" v={pct(d.reversibility.value)} note={d.reversibility.note} />
@@ -261,11 +258,11 @@ export function Console(p: ConsoleProps) {
           </dl>
 
           {d.missingInfo.length > 0 && (
-            <div className="border-t border-line px-6 py-5 md:px-10">
-              <p className="text-[13px] font-medium">Outstanding before this can be signed</p>
+            <div className="halftone border-t-[1.5px] border-ink px-6 py-5 md:px-10">
+              <p className="text-[14px] font-bold">Outstanding before this can be signed</p>
               <ul className="mt-3 space-y-3">
                 {d.missingInfo.map((m) => (
-                  <li key={m.id} className="flex flex-wrap items-center justify-between gap-3 border-l-2 border-ink pl-3">
+                  <li key={m.id} className="flex flex-wrap items-center justify-between gap-3 border-[1.5px] border-ink bg-panel px-3 py-2.5">
                     <div className="min-w-0">
                       <p className="text-[14px]">
                         {m.label}
@@ -289,7 +286,7 @@ export function Console(p: ConsoleProps) {
             </div>
           )}
 
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-line px-6 py-4 md:px-10">
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-3 border-t-[1.5px] border-ink px-6 py-5 md:px-10">
             <Btn tone="primary" onClick={run} disabled={busy || stakeScale !== 1} title={stakeScale !== 1 ? "Reset the what-if stakes first" : "Run on the server: issues a warrant or a stay and appends a sealed audit record"}>
               {busy ? "Signing…" : fresh ? "Log again" : "Decide and log"}
             </Btn>
@@ -313,7 +310,7 @@ export function Console(p: ConsoleProps) {
           )}
 
           {/* the stub: what the tool actually receives */}
-          <div className="stub relative border-t border-dashed border-ink/35 bg-raised/60 px-6 py-6 md:px-10">
+          <div className="stub relative border-t-2 border-dashed border-ink bg-raised px-6 py-7 md:px-10">
             {!fresh ? (
               <p className="max-w-[62ch] text-[13.5px] leading-relaxed text-mute">
                 Logging the decision issues either a signed warrant (only for <span style={{ color: OUTCOME.execute.color }}>execute</span>) or a stay. The tool on the other side checks it before it touches
@@ -322,7 +319,7 @@ export function Console(p: ConsoleProps) {
             ) : (
               <div className="space-y-5">
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
-                  <span className="text-[13.5px] font-semibold">{fresh.warrant ? "Warrant stub, presented to the tool" : "No warrant issued"}</span>
+                  <span className="display text-[26px]">{fresh.warrant ? "Warrant stub, presented to the tool" : "No warrant issued"}</span>
                   <span className="font-mono text-[10.5px] text-mute">
                     {fresh.warrant ? "HMAC-SHA256, single use, expires in 5 minutes" : `${OUTCOME[fresh.decision.outcome].label} never mints one`}
                   </span>
@@ -346,7 +343,7 @@ export function Console(p: ConsoleProps) {
                 {log.length > 0 && (
                   <ul className="space-y-2.5">
                     {log.map((l, i) => (
-                      <li key={i} className="rise border-l-2 pl-3 font-mono text-[12px] leading-snug" style={{ borderColor: l.ok ? "var(--color-execute)" : "var(--color-refuse)" }}>
+                      <li key={i} className="rise border-l-4 bg-panel py-2 pl-3 pr-2 font-mono text-[12px] leading-snug" style={{ borderColor: l.ok ? "var(--color-execute)" : "var(--color-refuse)" }}>
                         <span className="font-semibold" style={{ color: l.ok ? "var(--color-execute)" : "var(--color-refuse)" }}>
                           {l.ok ? "EXECUTED" : "REFUSED"}
                         </span>{" "}
@@ -440,7 +437,7 @@ export function Console(p: ConsoleProps) {
           </Panel>
         </div>
         {sc?.tags?.includes("failure-test") && (
-          <p className="border-l-2 border-refuse pl-3 text-[13px] text-mute">
+          <p className="border-[1.5px] border-ink bg-pink px-4 py-3 text-[14px] text-ink">
             This is the deliberate failure case. The <b className="text-ink">Failure test</b> tab shows v1 approving it at 99% and how v2 stops it.
           </p>
         )}
@@ -482,12 +479,12 @@ function Guilloche({ active }: { active: boolean }) {
 function Ruler({ lo, mid, hi, effective }: { lo: number; mid: number; hi: number; effective: number }) {
   return (
     <div className="relative mt-4 h-10">
-      <div className="absolute inset-x-0 top-[14px] h-px bg-ink/70" />
+      <div className="absolute inset-x-0 top-[14px] h-[1.5px] bg-ink" />
       {Array.from({ length: 21 }, (_, i) => (
         <div key={i} className="absolute top-[10px] w-px bg-ink/45" style={{ left: `${i * 5}%`, height: i % 10 === 0 ? 10 : i % 2 === 0 ? 7 : 4 }} />
       ))}
       <div className="absolute top-[6px] h-[16px] w-px bg-refuse" style={{ left: "60%" }} title="Confidence floor for autonomous action" />
-      <div className="absolute top-[10px] h-[9px] transition-all duration-500" style={{ left: `${lo * 100}%`, width: `${Math.max(0.5, (hi - lo) * 100)}%`, background: tint("var(--color-execute)", 40) }} />
+      <div className="absolute top-[10px] h-[9px] transition-all duration-500" style={{ left: `${lo * 100}%`, width: `${Math.max(0.5, (hi - lo) * 100)}%`, background: tint("var(--color-execute)", 55) }} />
       <div className="absolute top-[3px] h-[23px] w-[2px] -translate-x-1/2 bg-ink transition-all duration-500" style={{ left: `${mid * 100}%` }} title="Point estimate" />
       <div
         className="absolute top-[22px] h-0 w-0 -translate-x-1/2 border-x-[5px] border-b-[7px] border-x-transparent transition-all duration-500"
@@ -506,11 +503,11 @@ function Ruler({ lo, mid, hi, effective }: { lo: number; mid: number; hi: number
 
 function Fig({ k, v, unit, note }: { k: string; v: string; unit?: string; note?: string }) {
   return (
-    <div className="border-b border-r border-line px-6 py-4 last:border-r-0 md:border-b-0 md:px-10 md:[&:not(:first-child)]:pl-6 md:[&:not(:last-child)]:pr-6">
-      <dt className="text-[12px] text-mute">{k}</dt>
-      <dd className="mt-1 font-mono text-[22px] leading-none tracking-tight text-ink">
+    <div className="border-b border-r border-ink/30 px-6 py-5 transition-colors duration-300 last:border-r-0 hover:bg-sun md:border-b-0 md:px-10 md:[&:not(:first-child)]:pl-6 md:[&:not(:last-child)]:pr-6">
+      <dt className="label">{k}</dt>
+      <dd className="display mt-2 text-[44px] text-ink">
         {v}
-        {unit && <span className="text-[13px] text-mute">{unit}</span>}
+        {unit && <span className="ml-0.5 text-[20px] text-mute">{unit}</span>}
       </dd>
       {note && <p className="mt-1.5 text-[11.5px] leading-snug text-mute">{note}</p>}
     </div>
@@ -533,9 +530,9 @@ function LossLedger({ d, pack }: { d: Decision; pack: Pack<any> }) {
               <div className="min-w-0">
                 <span className={`font-mono text-[12.5px] ${chosen ? "font-semibold text-ink" : "text-mute"}`}>
                   {o}
-                  {chosen && <span className="ml-2 bg-ink px-1 text-[9.5px] font-semibold tracking-[0.08em] text-panel">CHOSEN</span>}
+                  {chosen && <span className="ml-2 bg-sun px-1 text-[9.5px] font-bold tracking-[0.08em] text-ink outline outline-1 outline-ink">CHOSEN</span>}
                 </span>
-                {v !== null && <div className="mt-1.5 h-[3px] transition-[width] duration-500" style={{ width: `${Math.max(2, scale(v) * 100)}%`, background: chosen ? "var(--color-ink)" : tint("var(--color-ink)", 22) }} />}
+                {v !== null && <div className="mt-1.5 h-[3px] transition-[width] duration-500" style={{ width: `${Math.max(2, scale(v) * 100)}%`, height: chosen ? 6 : 3, background: chosen ? OUTCOME[o].color : tint("var(--color-ink)", 30) }} />}
               </div>
               <span className="font-mono text-[13px] text-ink">{v === null ? "n/a" : money(pack, v)}</span>
             </li>
@@ -627,7 +624,7 @@ function WarrantClaims({ token }: { token: string }) {
 }
 
 function Field({ f, value, onChange }: { f: FieldSpec; value: any; onChange: (v: any) => void }) {
-  const base = "w-full border-0 border-b border-ink/30 bg-transparent px-0 py-1 font-mono text-[13px] text-ink transition-colors hover:border-ink/60 focus:border-ink focus:outline-none";
+  const base = "w-full border-0 border-b-[1.5px] border-ink/40 bg-transparent px-0 py-1 font-mono text-[13.5px] text-ink transition-colors hover:border-ink focus:border-blue focus:bg-sun/40 focus:outline-none";
   const wide = f.type === "text";
   const id = `f-${f.key}`;
   return (
@@ -650,7 +647,7 @@ function Field({ f, value, onChange }: { f: FieldSpec; value: any; onChange: (v:
           {value ? "yes" : "no"}
         </button>
       )}
-      {f.type === "text" && <textarea id={id} className="min-h-[72px] w-full border border-ink/30 bg-panel p-2 font-mono text-[12.5px] leading-snug text-ink focus:border-ink focus:outline-none" value={value ?? ""} onChange={(e) => onChange(e.target.value)} />}
+      {f.type === "text" && <textarea id={id} className="min-h-[80px] w-full border-[1.5px] border-ink bg-panel p-2 font-mono text-[12.5px] leading-snug text-ink shadow-[3px_3px_0_var(--color-ink)] focus:border-blue focus:outline-none" value={value ?? ""} onChange={(e) => onChange(e.target.value)} />}
     </div>
   );
 }

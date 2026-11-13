@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import type { Outcome, Pack } from "@/core/types";
 import { fmt } from "@/core/decide";
 
@@ -41,14 +41,124 @@ export function Tag({ o, size = "md" }: { o: Outcome; size?: "sm" | "md" }) {
 
 export function Panel({ title, aside, children, className = "" }: { title?: string; aside?: React.ReactNode; children: React.ReactNode; className?: string }) {
   return (
-    <section className={`border border-line bg-panel ${className}`}>
+    <section className={`sticker reveal ${className}`}>
       {title && (
-        <header className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-line px-5 py-3">
-          <h3 className="text-[14px] font-semibold tracking-tight text-ink">{title}</h3>
+        <header className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b-[1.5px] border-dashed border-ink px-5 py-3">
+          <h3 className="flex items-center gap-2.5 text-[17px] font-bold tracking-[-0.01em] text-ink">
+            <i aria-hidden className="inline-block h-2.5 w-2.5 rotate-45 bg-ink" />
+            {title}
+          </h3>
           {aside}
         </header>
       )}
       <div className="p-5">{children}</div>
+    </section>
+  );
+}
+
+/** A strip of caution tape that scrolls forever. */
+export function Tape({ items, tone = "pink", reverse, dur = 38, className = "" }: { items: string[]; tone?: "pink" | "blue" | "sun" | "ink"; reverse?: boolean; dur?: number; className?: string }) {
+  const bg = { pink: "var(--color-pink)", blue: "var(--color-blue)", sun: "var(--color-sun)", ink: "var(--color-ink)" }[tone];
+  const fg = tone === "blue" || tone === "ink" ? "var(--color-panel)" : "var(--color-ink)";
+  const run = (
+    <span className="flex shrink-0 items-center">
+      {items.map((t, i) => (
+        <span key={i} className="flex items-center">
+          <span className="display px-5 text-[26px] leading-none sm:text-[30px]">{t}</span>
+          <Star className="h-5 w-5 shrink-0" />
+        </span>
+      ))}
+    </span>
+  );
+  return (
+    <div className={`tape py-2.5 ${className}`} style={{ background: bg, color: fg }} aria-hidden>
+      <div className={`tape-track ${reverse ? "rev" : ""}`} style={{ ["--dur" as string]: `${dur}s` }}>
+        {run}
+        {run}
+      </div>
+    </div>
+  );
+}
+
+export function Star({ className = "", style }: { className?: string; style?: React.CSSProperties }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} style={style} aria-hidden>
+      <path d="M12 0l2.6 8.2L23 6l-6.4 6 6.4 6-8.4-2.2L12 24l-2.6-8.2L1 18l6.4-6L1 6l8.4 2.2z" fill="currentColor" />
+    </svg>
+  );
+}
+
+/** Rotating wax seal with text around the rim. */
+export function Seal({ size = 150, center, ring = "SIGNED · SEALED · SINGLE-USE · NO WARRANT · NO ACTION · ", tone = "blue" }: { size?: number; center?: React.ReactNode; ring?: string; tone?: "blue" | "pink" | "sun" }) {
+  const fill = { blue: "var(--color-blue)", pink: "var(--color-pink)", sun: "var(--color-sun)" }[tone];
+  const fg = tone === "blue" ? "var(--color-panel)" : "var(--color-ink)";
+  const id = useId().replace(/[^a-zA-Z0-9_-]/g, "");
+  return (
+    <div className="relative shrink-0" style={{ width: size, height: size }} aria-hidden>
+      <svg viewBox="0 0 200 200" className="spin absolute inset-0 h-full w-full">
+        <defs>
+          <path id={`ring${id}`} d="M100,100 m-74,0 a74,74 0 1,1 148,0 a74,74 0 1,1 -148,0" />
+        </defs>
+        <path
+          d={Array.from({ length: 24 }, (_, i) => {
+            const a = (i / 24) * Math.PI * 2;
+            const r = i % 2 ? 92 : 99;
+            return `${i ? "L" : "M"}${(100 + Math.cos(a) * r).toFixed(1)} ${(100 + Math.sin(a) * r).toFixed(1)}`;
+          }).join("") + "Z"}
+          fill={fill}
+          stroke="var(--color-ink)"
+          strokeWidth="2.5"
+        />
+        <circle cx="100" cy="100" r="60" fill="none" stroke={fg} strokeWidth="1.5" strokeDasharray="2 4" />
+        <text fill={fg} fontFamily="var(--font-mono)" fontSize="13" fontWeight="700" letterSpacing="2.6">
+          <textPath href={`#ring${id}`}>{ring}</textPath>
+        </text>
+      </svg>
+      <div className="absolute inset-0 grid place-items-center" style={{ color: fg }}>
+        {center}
+      </div>
+    </div>
+  );
+}
+
+/** A word whose letters slam onto the page. Re-keys on change so it replays. */
+export function SlamWord({ text, className = "", style }: { text: string; className?: string; style?: React.CSSProperties }) {
+  return (
+    <span key={text} className={className} style={style} aria-label={text}>
+      {[...text].map((ch, i) => (
+        <span key={i} aria-hidden className="slam" style={{ ["--i" as string]: i }}>
+          {ch === " " ? " " : ch}
+        </span>
+      ))}
+    </span>
+  );
+}
+
+/** Poster-style section opener used on every tab. */
+export function TabHero({ kicker, title, accent, children }: { kicker: string; title: string; accent?: string; children?: React.ReactNode }) {
+  return (
+    <section className="mb-10 grid items-end gap-6 border-b-2 border-ink pb-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,44ch)]">
+      <div>
+        <p className="label mb-4 flex items-center gap-2">
+          <Star className="h-3 w-3 text-pink" />
+          {kicker}
+        </p>
+        <h1 className="display text-[64px] sm:text-[96px] lg:text-[120px]">
+          <span className="line-mask">
+            <span className="line-up overprint ink squash" data-text={title}>
+              {title}
+            </span>
+          </span>
+          {accent && (
+            <span className="line-mask">
+              <span className="line-up serif-i block text-[0.78em] leading-[0.95] text-refuse" style={{ ["--i" as string]: 1 }}>
+                {accent}
+              </span>
+            </span>
+          )}
+        </h1>
+      </div>
+      {children && <div className="rise text-[15.5px] leading-relaxed text-mute [animation-delay:300ms]">{children}</div>}
     </section>
   );
 }
@@ -69,17 +179,17 @@ export function Btn({
   small?: boolean;
 }) {
   const tones = {
-    default: "border-ink/25 bg-panel text-ink hover:border-ink",
-    primary: "border-ink bg-ink text-panel hover:bg-ink/85 font-medium",
-    danger: "border-refuse/45 bg-panel text-refuse hover:border-refuse",
-    ghost: "border-transparent text-mute hover:text-ink",
+    default: "press border-ink bg-panel text-ink hover:bg-sun font-semibold",
+    primary: "press border-ink bg-ink text-panel hover:bg-blue font-bold",
+    danger: "press border-ink bg-panel text-refuse hover:bg-pink hover:text-ink font-semibold",
+    ghost: "border-transparent text-mute underline-offset-4 hover:text-ink hover:underline",
   };
   return (
     <button
       onClick={onClick}
       disabled={disabled}
       title={title}
-      className={`whitespace-nowrap border transition-[color,background,border-color,transform] duration-150 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-35 ${small ? "px-2.5 py-1 text-[12px]" : "px-4 py-2 text-[13.5px]"} ${tones[tone]}`}
+      className={`whitespace-nowrap border-[1.5px] disabled:cursor-not-allowed disabled:opacity-35 ${small ? "px-2.5 py-1 text-[12px]" : "px-4 py-2 text-[14px]"} ${tones[tone]}`}
     >
       {children}
     </button>

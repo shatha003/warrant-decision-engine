@@ -1,5 +1,5 @@
 "use client";
-import { OUTCOME, OUTCOMES, Panel, tint } from "./shared";
+import { OUTCOME, Panel } from "./shared";
 
 const THESIS = [
   { h: "Autonomy will be a credit score, and the warrant will be its unit of account.", p: "Today “agent safety” means a system prompt and a confidence number nobody calibrated. That ends within two years, for a boring reason: insurance. Once agents move money, ship code and moderate people, someone has to underwrite the losses, and underwriters don’t price vibes. They price calibration histories." },
@@ -14,7 +14,7 @@ export function AboutTab() {
     <div className="space-y-5">
       <Panel>
         <p className="label">the question</p>
-        <h2 className="mt-1 max-w-3xl text-2xl font-semibold leading-tight tracking-tight">Not “can the agent call the tool?” but “is it <i>allowed</i> to, right now, on this evidence, at this price of being wrong?”</h2>
+        <h2 className="mt-2 max-w-4xl font-serif text-[34px] leading-[1.1] tracking-[-0.01em] sm:text-[44px]">Not “can the agent call the tool?” but “is it <mark className="italic">allowed</mark> to, right now, on this evidence, at this price of being wrong?”</h2>
         <p className="mt-3 max-w-3xl text-[15px] leading-relaxed text-mute">
           WARRANT is the layer between a proposed action and the world. It prices every option in expected regret, picks the cheapest, and only an <span style={{ color: OUTCOME.execute.color }}>execute</span> produces a cryptographic warrant that tools will accept.
         </p>
@@ -44,8 +44,8 @@ export function AboutTab() {
                   ["refuse", "A hard invariant is violated, or acting is catastrophic and no info helps", "Not allowed. More evidence won’t change that."],
                 ] as const
               ).map(([o, t, w]) => (
-                <tr key={o} className="border-t border-line">
-                  <td className="py-2.5 pr-4 font-mono text-xs font-semibold" style={{ color: OUTCOME[o].color }}>{OUTCOME[o].glyph} {o}</td>
+                <tr key={o} className="border-t-[1.5px] border-ink/25 transition-colors hover:bg-sun">
+                  <td className="display py-3 pr-4 text-[26px]" style={{ color: OUTCOME[o].color }}>{o}</td>
                   <td className="py-2.5 pr-4 text-mute">{t}</td>
                   <td className="py-2.5 text-mute">{w}</td>
                 </tr>
@@ -83,7 +83,7 @@ export function AboutTab() {
         <div className="max-w-3xl space-y-4">
           {THESIS.map((t, i) => (
             <div key={i} className={i === 0 ? "border-l-2 pl-4" : ""} style={i === 0 ? { borderColor: OUTCOME.execute.color } : undefined}>
-              <h4 className={i === 0 ? "text-xl font-semibold leading-snug" : "text-sm font-semibold"}>{t.h}</h4>
+              <h4 className={i === 0 ? "font-serif text-[30px] italic leading-tight" : "text-[16px] font-bold"}>{t.h}</h4>
               <p className="mt-1 text-sm leading-relaxed text-mute">{t.p}</p>
             </div>
           ))}
@@ -96,7 +96,7 @@ export function AboutTab() {
 function Architecture() {
   const box = (x: number, y: number, w: number, h: number, title: string, lines: string[], color = "var(--color-line)") => (
     <g>
-      <rect x={x} y={y} width={w} height={h} rx="8" fill="var(--color-raised)" stroke={color} strokeWidth="1.2" />
+      <rect x={x + 3} y={y + 3} width={w} height={h} fill="var(--color-ink)" /><rect x={x} y={y} width={w} height={h} fill="var(--color-panel)" stroke={color === "var(--color-line)" ? "var(--color-ink)" : color} strokeWidth="1.5" />
       <text x={x + 12} y={y + 20} fontSize="12" fontWeight="600" fill="var(--color-ink)" fontFamily="var(--font-sans)">{title}</text>
       {lines.map((l, i) => (
         <text key={i} x={x + 12} y={y + 38 + i * 14} fontSize="10" fill="var(--color-mute)" fontFamily="var(--font-mono)">{l}</text>
@@ -118,11 +118,11 @@ function Architecture() {
         {box(190, 190, 220, 80, "Missing-info map", ["what we expected but lack", "askable? / arrives with time?"])}
         {arrow(410, 100, 450, 140)}
         {arrow(410, 230, 450, 190)}
-        <rect x="450" y="20" width="270" height="250" rx="10" fill="none" stroke="var(--color-execute)" strokeWidth="1.5" strokeDasharray="5 4" />
+        <rect x="450" y="20" width="270" height="250" fill="color-mix(in srgb, var(--color-sun) 35%, transparent)" stroke="var(--color-execute)" strokeWidth="2" strokeDasharray="6 4" />
         <text x="462" y="40" fontSize="10" fill="var(--color-execute)" fontFamily="var(--font-mono)">DECISION CORE · pure · no I/O · no LLM</text>
         {["G0 invariants → refuse | escalate", "G1 authority + confidence floor", "G2 belief: log-odds, intervals", "G3 expected-loss table ×5 options", "G4 value of information", "G5 argmin · margin · flip distances"].map((t, i) => (
           <g key={t}>
-            <rect x="466" y={54 + i * 34} width="238" height="28" rx="5" fill="var(--color-raised)" stroke="var(--color-line)" />
+            <rect x="466" y={54 + i * 34} width="238" height="28" fill="var(--color-panel)" stroke="var(--color-ink)" />
             <text x="476" y={72 + i * 34} fontSize="10.5" fill="var(--color-ink)" fontFamily="var(--font-mono)">{t}</text>
           </g>
         ))}

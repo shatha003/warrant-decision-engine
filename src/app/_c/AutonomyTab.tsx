@@ -2,7 +2,7 @@
 import { AUTONOMY_NAMES } from "@/core/decide";
 import type { Pack } from "@/core/types";
 import type { Calibration } from "@/ledger/calibration";
-import { Btn, Panel, tint } from "./shared";
+import { Btn, Panel } from "./shared";
 
 const LEVEL_COLOR = ["var(--color-refuse)", "var(--color-defer)", "var(--color-ask)", "var(--color-execute)"];
 const LEVEL_DESC = [
@@ -38,15 +38,15 @@ export function AutonomyTab({
           WARRANT keeps a ledger of every confidence it ever stated and what really happened. If “90% sure” only comes true 70% of the time, the engine is miscalibrated, so it <b className="text-ink">demotes itself</b>: its
           authority shrinks and eventually it drops into shadow mode where a human confirms everything. Go to <b className="text-ink">Decide</b> afterwards and watch the same easy case stop being executed.
         </p>
-        <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="stagger mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {packs.map((p) => {
             const c = cals[p.id];
             const active = p.id === pack.id;
             return (
-              <div key={p.id} className="rounded-md border px-3 py-2.5" style={{ borderColor: active ? "var(--color-ink)" : "var(--color-line)" }}>
+              <div key={p.id} className={`border-[1.5px] border-ink px-4 py-3 transition-transform duration-300 hover:-rotate-1 ${active ? "bg-sun shadow-[4px_4px_0_var(--color-ink)]" : "bg-panel"}`}>
                 <div className="flex items-baseline justify-between">
-                  <span className="text-sm font-medium">{p.name}</span>
-                  <span className="font-mono text-xs font-semibold" style={{ color: LEVEL_COLOR[c.autonomy] }}>L{c.autonomy}</span>
+                  <span className="text-[15px] font-bold">{p.name}</span>
+                  <span className="display text-[44px]" style={{ color: LEVEL_COLOR[c.autonomy] }}>L{c.autonomy}</span>
                 </div>
                 <div className="mt-1 font-mono text-[10px] text-faint">ECE {c.ece.toFixed(3)} · Brier {c.brier.toFixed(3)}</div>
               </div>
@@ -72,9 +72,9 @@ export function AutonomyTab({
             {[3, 2, 1, 0].map((lv) => {
               const on = cal.autonomy === lv;
               return (
-                <li key={lv} className="rounded-md border px-3.5 py-2.5" style={{ borderColor: on ? LEVEL_COLOR[lv] : "var(--color-line)", background: on ? tint(LEVEL_COLOR[lv], 10) : "transparent" }}>
+                <li key={lv} className="border-[1.5px] px-3.5 py-3 transition-all duration-300" style={{ borderColor: on ? "var(--color-ink)" : "var(--color-line)", background: on ? "var(--color-sun)" : "transparent", boxShadow: on ? "4px 4px 0 var(--color-ink)" : "none" }}>
                   <div className="flex items-center justify-between">
-                    <span className="font-mono text-sm font-semibold" style={{ color: LEVEL_COLOR[lv] }}>{AUTONOMY_NAMES[lv]}</span>
+                    <span className="display text-[28px]" style={{ color: LEVEL_COLOR[lv] }}>{AUTONOMY_NAMES[lv]}</span>
                     <span className="font-mono text-[10px] text-faint">{["ECE > 0.20", "ECE ≤ 0.20", "ECE ≤ 0.13", "ECE ≤ 0.08"][lv]}</span>
                   </div>
                   <p className="mt-0.5 text-xs text-mute">{LEVEL_DESC[lv]}</p>

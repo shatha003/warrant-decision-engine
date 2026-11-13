@@ -125,7 +125,7 @@ export function DecisionMap({
       cobalt: cssVar("--color-execute", "#1d3ccf"),
       red: cssVar("--color-refuse", "#c0301b"),
     };
-    const mono = cssVar("--font-geist-mono", "monospace");
+    const mono = cssVar("--font-jet", "monospace");
     const cw = W / COLS;
     const ch = H / ROWS;
     g.clearRect(0, 0, W, H);
@@ -261,7 +261,7 @@ export function DecisionMap({
         </div>
         <div className="min-w-0 flex-1">
           <div
-            className="relative cursor-crosshair border border-ink"
+            className="relative cursor-crosshair border-[1.5px] border-ink"
             style={{ touchAction: "none" }}
             onPointerMove={(e) => !pinned && setHover(point(e))}
             onPointerLeave={() => setHover(null)}
@@ -269,8 +269,8 @@ export function DecisionMap({
           >
             <canvas ref={ref} className="block h-[320px] w-full" aria-label="Territory map: which outcome wins at each level of confidence and stakes" />
             <div
-              className="pulse pointer-events-none absolute h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-ink bg-panel"
-              style={{ left: `${dotX * 100}%`, top: `${fToY(1) * 100}%`, ["--ring" as string]: "#eceef140" }}
+              className="pulse pointer-events-none absolute h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-ink bg-sun"
+              style={{ left: `${dotX * 100}%`, top: `${fToY(1) * 100}%`, ["--ring" as string]: "#17140f55" }}
             >
               <span className="absolute inset-[3px] rounded-full" style={{ background: OUTCOME[outcome].color }} />
             </div>
