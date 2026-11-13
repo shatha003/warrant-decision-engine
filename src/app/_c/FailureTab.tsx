@@ -93,7 +93,7 @@ function Stage({ n, title, d, note, bad, good }: { n: string; title: string; d: 
         {good && <span className="font-mono text-[10px] text-execute">✓ HOLDS</span>}
       </div>
       <h3 className="mt-1 text-sm font-semibold leading-tight">{title}</h3>
-      <div className="mt-3 text-3xl font-semibold" style={{ color: m.color }}>{m.glyph} {m.label}</div>
+      <div className="mt-3 text-[40px] font-semibold leading-none tracking-[-0.03em]" style={{ color: m.color }}>{m.label.charAt(0) + m.label.slice(1).toLowerCase()}</div>
       <p className="mt-1 font-mono text-xs text-mute">{pct(d.confidence.mid)} confident · {counted.length} signals counted · {collapsed.length} collapsed</p>
       <p className="mt-3 text-xs leading-relaxed text-mute">{note}</p>
       <ul className="mt-3 space-y-0.5 font-mono text-[10.5px]">

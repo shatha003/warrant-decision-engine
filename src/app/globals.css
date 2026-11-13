@@ -1,39 +1,74 @@
 @import "tailwindcss";
 
+/*
+  WARRANT visual system: the decision is an official instrument.
+  Paper and ink, sharp corners. Colour is earned:
+  cobalt = authorised, vermilion = forbidden, everything else stays in ink.
+*/
 @theme {
-  --color-bg: #090b0f;
-  --color-panel: #10131a;
-  --color-raised: #161a23;
-  --color-line: #232838;
-  --color-ink: #e8eaf0;
-  --color-mute: #96a0b5;
-  --color-faint: #5d6679;
+  --color-bg: #e8e9e5;
+  --color-panel: #fbfbf9;
+  --color-raised: #f1f2ee;
+  --color-line: #d3d4ce;
+  --color-ink: #15161a;
+  --color-mute: #52565e;
+  --color-faint: #6c7078;
 
-  --color-execute: #3ddc97;
-  --color-ask: #5aa9ff;
-  --color-defer: #f5b83d;
-  --color-escalate: #a78bfa;
-  --color-refuse: #ff6b6b;
+  --color-execute: #1d3ccf;
+  --color-ask: #2f333b;
+  --color-defer: #2f333b;
+  --color-escalate: #2f333b;
+  --color-refuse: #c0301b;
 
-  --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  --radius-xs: 0px;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+
+  --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
-:root { color-scheme: dark; }
+:root { color-scheme: light; }
 html, body { background: var(--color-bg); color: var(--color-ink); }
-body { font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
-::selection { background: color-mix(in srgb, var(--color-ask) 35%, transparent); }
+body { font-family: var(--font-sans); -webkit-font-smoothing: antialiased; font-feature-settings: "ss01", "tnum"; }
+::selection { background: color-mix(in srgb, var(--color-execute) 22%, transparent); }
+.rounded { border-radius: 0; }
 
-.label { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-faint); }
-.hair { border-color: var(--color-line); }
+.label { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-mute); }
+.scroll-thin { scrollbar-width: thin; scrollbar-color: var(--color-line) transparent; }
 .scroll-thin::-webkit-scrollbar { height: 6px; width: 6px; }
-.scroll-thin::-webkit-scrollbar-thumb { background: var(--color-line); border-radius: 3px; }
+.scroll-thin::-webkit-scrollbar-thumb { background: var(--color-line); }
+
+/* the rubber stamp that lands when a decision is logged */
+.stamp {
+  position: absolute; right: 0; top: 50%;
+  transform: translateY(-50%) rotate(-6deg);
+  mix-blend-mode: multiply;
+  animation: stamp 0.42s cubic-bezier(0.2, 0.9, 0.25, 1.15) both;
+}
+@keyframes stamp {
+  0% { opacity: 0; transform: translateY(-50%) rotate(-6deg) scale(1.7); }
+  55% { opacity: 1; transform: translateY(-50%) rotate(-6deg) scale(0.95); }
+  100% { opacity: 1; transform: translateY(-50%) rotate(-6deg) scale(1); }
+}
+
+/* ticket notches on the warrant stub */
+.stub::before, .stub::after {
+  content: ""; position: absolute; top: -9px; width: 18px; height: 18px; border-radius: 50%;
+  background: var(--color-bg); border: 1px solid color-mix(in srgb, var(--color-ink) 15%, transparent);
+}
+.stub::before { left: -10px; }
+.stub::after { right: -10px; }
 
 @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-.rise { animation: rise .35s ease both; }
-@keyframes pulse-ring { 0% { box-shadow: 0 0 0 0 var(--ring, #fff6); } 100% { box-shadow: 0 0 0 14px transparent; } }
-.pulse { animation: pulse-ring 1.6s ease-out infinite; }
-@media (prefers-reduced-motion: reduce) { .rise, .pulse { animation: none; } }
+.rise { animation: rise 0.35s cubic-bezier(0.16, 1, 0.3, 1) both; }
+@keyframes pulse-ring { 0% { box-shadow: 0 0 0 0 var(--ring, #15161a55); } 100% { box-shadow: 0 0 0 12px transparent; } }
+.pulse { animation: pulse-ring 1.8s ease-out infinite; }
+@media (prefers-reduced-motion: reduce) { .rise, .pulse, .stamp { animation: none; } }
 
 button { cursor: pointer; }
-button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--color-ask); outline-offset: 2px; }
+button:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visible {
+  outline: 2px solid var(--color-execute); outline-offset: 2px;
+}

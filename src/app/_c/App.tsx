@@ -8,12 +8,14 @@ import { AuditTab } from "./AuditTab";
 import { AutonomyTab } from "./AutonomyTab";
 import { Console, type Input } from "./Console";
 import { FailureTab } from "./FailureTab";
-import { OUTCOME, useSession } from "./shared";
+import { useSession } from "./shared";
 
 type Tab = "decide" | "audit" | "autonomy" | "failure" | "about";
 type CalParams = { badWeeks: number; extra: [number, boolean][] };
 const NO_CAL: CalParams = { badWeeks: 0, extra: [] };
 const LIST = Object.values(PACKS);
+const REPO = "https://github.com/shatha003/warrant-decision-engine";
+const SHORT: Record<string, string> = { refund: "Refunds", deploy: "Deploys", moderation: "Moderation", shell: "Agent shell" };
 
 const TABS: { id: Tab; label: string }[] = [
   { id: "decide", label: "Decide" },
@@ -118,75 +120,87 @@ export function App() {
     setScenarioId(s.id);
     setStakeScale(1);
     setTab("decide");
+    window.scrollTo({ top: 0 });
   };
 
+  const domainSwitch = (
+    <div className="grid w-fit grid-cols-2 gap-px border border-ink bg-ink sm:flex" role="tablist" aria-label="Domain">
+      {LIST.map((p) => {
+        const on = p.id === packId;
+        const lv = cals[p.id].autonomy;
+        return (
+          <button
+            key={p.id}
+            role="tab"
+            aria-selected={on}
+            onClick={() => selectPack(p.id)}
+            className="whitespace-nowrap px-3.5 py-2 text-left text-[13px] transition-colors"
+            style={{ background: on ? "var(--color-ink)" : "var(--color-panel)", color: on ? "var(--color-panel)" : "var(--color-ink)" }}
+          >
+            {SHORT[p.id] ?? p.name}
+            <span className="ml-2 font-mono text-[10px] opacity-70" title={`Autonomy level ${lv}`}>
+              L{lv}
+            </span>
+          </button>
+        );
+      })}
+    </div>
+  );
+
   return (
-    <div className="mx-auto min-h-screen max-w-[1480px] px-4 pb-24 sm:px-6">
-      <header className="sticky top-0 z-30 -mx-4 border-b border-line bg-bg/85 px-4 backdrop-blur sm:-mx-6 sm:px-6">
-        <div className="flex flex-wrap items-center gap-x-8 gap-y-2 py-3">
-          <div className="flex items-baseline gap-3">
-            <h1 className="font-mono text-lg font-bold tracking-[0.28em]">WARRANT</h1>
-            <p className="hidden text-xs text-mute md:block">an AI that has to earn the right to act</p>
-          </div>
-          <nav className="scroll-thin flex max-w-full gap-1 overflow-x-auto" aria-label="Sections">
+    <div className="min-h-[100dvh]">
+      <header className="sticky top-0 z-30 border-b border-line bg-bg/90 backdrop-blur-sm">
+        <div className="mx-auto flex h-16 max-w-[1400px] items-center gap-6 px-4 sm:px-8">
+          <button onClick={() => setTab("decide")} className="flex shrink-0 items-center gap-2.5" aria-label="WARRANT home">
+            <span aria-hidden className="relative inline-block h-[18px] w-[18px] border-2 border-ink">
+              <span className="absolute inset-[3px] bg-execute" />
+            </span>
+            <span className="text-[15px] font-semibold tracking-[0.22em]">WARRANT</span>
+          </button>
+          <nav className="scroll-thin flex h-full min-w-0 gap-5 overflow-x-auto sm:ml-6" aria-label="Sections">
             {TABS.map((t) => (
               <button
                 key={t.id}
                 onClick={() => setTab(t.id)}
                 aria-current={tab === t.id ? "page" : undefined}
-                className="relative shrink-0 whitespace-nowrap rounded-md px-3 py-1.5 text-sm transition-colors"
-                style={{ color: tab === t.id ? "var(--color-ink)" : "var(--color-mute)", background: tab === t.id ? "var(--color-raised)" : "transparent" }}
+                className="shrink-0 whitespace-nowrap border-b-2 pt-0.5 text-[13.5px] transition-colors"
+                style={{ borderColor: tab === t.id ? "var(--color-ink)" : "transparent", color: tab === t.id ? "var(--color-ink)" : "var(--color-mute)" }}
               >
                 {t.label}
-                {t.id === "audit" && records.length > 0 && <span className="ml-1.5 rounded bg-line px-1 font-mono text-[10px] text-mute">{records.length}</span>}
+                {t.id === "audit" && records.length > 0 && <span className="ml-1.5 font-mono text-[10.5px] text-mute">{records.length}</span>}
               </button>
             ))}
           </nav>
-          <div className="ml-auto flex items-center gap-2 font-mono text-[10px] text-faint">
-            {(["execute", "ask", "defer", "escalate", "refuse"] as const).map((o) => (
-              <span key={o} className="hidden items-center gap-1 lg:flex" style={{ color: OUTCOME[o].color }}>
-                {OUTCOME[o].glyph} {o}
-              </span>
-            ))}
-          </div>
+          <a href={REPO} target="_blank" rel="noreferrer" className="ml-auto hidden shrink-0 text-[13px] text-mute underline-offset-4 hover:text-ink hover:underline md:block">
+            Source
+          </a>
         </div>
-        {(tab === "decide" || tab === "autonomy") && (
-          <div className="flex flex-wrap items-center gap-2 pb-3">
-            {LIST.map((p) => {
-              const on = p.id === packId;
-              const lv = cals[p.id].autonomy;
-              return (
-                <button
-                  key={p.id}
-                  onClick={() => selectPack(p.id)}
-                  className="rounded-md border px-3 py-1.5 text-left transition-colors hover:border-faint"
-                  style={{ borderColor: on ? "var(--color-ink)" : "var(--color-line)", background: on ? "var(--color-raised)" : "transparent" }}
-                >
-                  <span className="text-[13px] font-medium">{p.name}</span>
-                  <span className="ml-2 font-mono text-[10px]" style={{ color: ["var(--color-refuse)", "var(--color-defer)", "var(--color-ask)", "var(--color-execute)"][lv] }}>L{lv}</span>
-                </button>
-              );
-            })}
-            {packId === "refund" && tab === "decide" && (
-              <button
-                onClick={() => setVariant(variant === "guarded" ? "naive" : "guarded")}
-                className="ml-auto rounded-md border px-3 py-1.5 font-mono text-[11px]"
-                style={{ borderColor: variant === "guarded" ? "var(--color-line)" : "var(--color-refuse)", color: variant === "guarded" ? "var(--color-mute)" : "var(--color-refuse)" }}
-                title="v1 sums every document as independent evidence and has no injection rule"
-              >
-                provenance guard: <b>{variant === "guarded" ? "ON (v2)" : "OFF (v1 naive)"}</b>
-              </button>
-            )}
-          </div>
-        )}
       </header>
 
-      <main className="pt-5">
+      <main className="mx-auto max-w-[1400px] px-4 pb-24 pt-10 sm:px-8">
         {tab === "decide" && (
           <>
-            <p className="mb-5 max-w-3xl text-sm leading-relaxed text-mute">
-              <b className="text-ink">{pack.name}.</b> {pack.tagline} Pick a scenario, edit the case, and watch the engine price <i>execute · ask · defer · escalate · refuse</i>. Only “execute” earns a signed warrant.
-            </p>
+            <section className="mb-10 grid items-end gap-6 border-b border-ink pb-8 lg:grid-cols-[minmax(0,1fr)_auto]">
+              <div>
+                <h1 className="text-[42px] font-semibold leading-[1.02] tracking-[-0.035em] sm:text-[56px]">No warrant, no action.</h1>
+                <p className="mt-4 max-w-[56ch] text-[15.5px] leading-relaxed text-mute">
+                  An AI agent proposes an action. WARRANT prices five possible responses and signs only the one it can defend. Tools refuse anything unsigned.
+                </p>
+              </div>
+              <div className="space-y-2.5 lg:justify-self-end">
+                {domainSwitch}
+                {packId === "refund" && (
+                  <button
+                    onClick={() => setVariant(variant === "guarded" ? "naive" : "guarded")}
+                    className="block w-full border px-3 py-1.5 text-left font-mono text-[11px] transition-colors lg:text-right"
+                    style={{ borderColor: variant === "guarded" ? "var(--color-line)" : "var(--color-refuse)", color: variant === "guarded" ? "var(--color-mute)" : "var(--color-refuse)" }}
+                    title="v1 counts every attached document as independent evidence and has no injection rule"
+                  >
+                    Provenance guard: <b>{variant === "guarded" ? "on (v2)" : "off (v1, naive)"}</b>
+                  </button>
+                )}
+              </div>
+            </section>
             <Console
               pack={pack}
               packId={packId}
@@ -224,14 +238,22 @@ export function App() {
           />
         )}
         {tab === "autonomy" && (
-          <AutonomyTab pack={pack} packs={LIST} cals={cals} cal={cal} badWeeks={calParams.badWeeks} extraCount={calParams.extra.length} addWeek={addWeek} reset={resetCal} />
+          <>
+            <div className="mb-6">{domainSwitch}</div>
+            <AutonomyTab pack={pack} packs={LIST} cals={cals} cal={cal} badWeeks={calParams.badWeeks} extraCount={calParams.extra.length} addWeek={addWeek} reset={resetCal} />
+          </>
         )}
         {tab === "failure" && <FailureTab openInConsole={openEcho} />}
         {tab === "about" && <AboutTab />}
       </main>
 
-      <footer className="mt-16 border-t border-line pt-6 font-mono text-[11px] text-faint">
-        WARRANT · deterministic decision core · {LIST.length} domains · hash-chained audit · built for The Decision Engine challenge
+      <footer className="border-t border-line">
+        <div className="mx-auto flex max-w-[1400px] flex-wrap items-center justify-between gap-3 px-4 py-6 text-[12.5px] text-mute sm:px-8">
+          <span>WARRANT. A deterministic decision core with signed warrants and a hash-chained audit trail.</span>
+          <a href={REPO} target="_blank" rel="noreferrer" className="underline underline-offset-4 hover:text-ink">
+            Source on GitHub
+          </a>
+        </div>
       </footer>
     </div>
   );

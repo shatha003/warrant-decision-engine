@@ -234,7 +234,7 @@ function Slider({ label, value, set, fmtv }: { label: string; value: number; set
   return (
     <label className="block">
       <span className="mb-1 flex justify-between"><span className="label">{label}</span><span className="font-mono text-xs text-mute">{fmtv(value)}</span></span>
-      <input type="range" min={0.25} max={4} step={0.05} value={value} onChange={(e) => set(Number(e.target.value))} className="w-full accent-white" />
+      <input type="range" min={0.25} max={4} step={0.05} value={value} onChange={(e) => set(Number(e.target.value))} className="w-full accent-[#15161a]" />
     </label>
   );
 }
