@@ -70,7 +70,7 @@ export function Btn({
 }) {
   const tones = {
     default: "border-ink/25 bg-panel text-ink hover:border-ink",
-    primary: "border-ink bg-ink text-panel hover:bg-[#2c2e35] font-medium",
+    primary: "border-ink bg-ink text-panel hover:bg-ink/85 font-medium",
     danger: "border-refuse/45 bg-panel text-refuse hover:border-refuse",
     ghost: "border-transparent text-mute hover:text-ink",
   };

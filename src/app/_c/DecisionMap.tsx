@@ -270,7 +270,7 @@ export function DecisionMap({
             <canvas ref={ref} className="block h-[320px] w-full" aria-label="Territory map: which outcome wins at each level of confidence and stakes" />
             <div
               className="pulse pointer-events-none absolute h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-ink bg-panel"
-              style={{ left: `${dotX * 100}%`, top: `${fToY(1) * 100}%`, ["--ring" as string]: "#15161a40" }}
+              style={{ left: `${dotX * 100}%`, top: `${fToY(1) * 100}%`, ["--ring" as string]: "#eceef140" }}
             >
               <span className="absolute inset-[3px] rounded-full" style={{ background: OUTCOME[outcome].color }} />
             </div>

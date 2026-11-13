@@ -7,6 +7,7 @@ import type { AuditRecord } from "@/ledger/audit";
 import type { Calibration } from "@/ledger/calibration";
 import type { SensorReport } from "@/sensors/llm";
 import { DecisionMap } from "./DecisionMap";
+import { Landscape } from "./Landscape";
 import { Btn, OUTCOME, OUTCOMES, Panel, Swatch, Tag, money, pct, tint } from "./shared";
 
 export type Input = Record<string, any>;
@@ -200,7 +201,9 @@ export function Console(p: ConsoleProps) {
           </button>
         )}
 
-        <article className="relative border border-ink/15 bg-panel shadow-[0_1px_0_rgba(21,22,26,0.05),0_32px_64px_-32px_rgba(21,22,26,0.4)]">
+        <Landscape d={d} pack={pack} />
+
+        <article className="relative border border-line bg-panel shadow-[0_0_0_1px_rgba(255,255,255,0.03),0_40px_80px_-40px_rgba(0,0,0,0.9)]">
           <Guilloche active={isExec} />
           <header className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-b border-line px-6 py-3 md:px-10">
             <span className="text-[13px] font-semibold tracking-tight">{isExec ? "Warrant to act" : "Stay of action"}</span>
@@ -291,7 +294,7 @@ export function Console(p: ConsoleProps) {
               {busy ? "Signing…" : fresh ? "Log again" : "Decide and log"}
             </Btn>
             <label className="flex items-center gap-2 text-[12.5px] text-mute" title={p.llmAvailable ? "" : "Set AI_GATEWAY_API_KEY and WARRANT_MODE=llm to enable"}>
-              <input type="checkbox" className="accent-[#15161a]" disabled={!p.llmAvailable} checked={p.sensors === "llm"} onChange={(e) => p.setSensors(e.target.checked ? "llm" : "offline")} />
+              <input type="checkbox" className="accent-ink" disabled={!p.llmAvailable} checked={p.sensors === "llm"} onChange={(e) => p.setSensors(e.target.checked ? "llm" : "offline")} />
               LLM sensors, doubt only{!p.llmAvailable && " (no API key on this deployment)"}
             </label>
             {stakeScale !== 1 && (

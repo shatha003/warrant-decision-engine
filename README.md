@@ -7,7 +7,7 @@ Given a proposed action and its context, WARRANT returns one of **execute · ask
 confidence (interval), risk, reversibility, the evidence used, what's missing, the minimal changes that would flip the
 outcome, and a tamper-evident audit record. Only `execute` produces a cryptographic **warrant**; the actuator refuses to move without one.
 
-- Live demo: https://warrant-nfqjiwkwn-shatha11s-projects.vercel.app
+- Live demo: https://warrant-shatha11s-projects.vercel.app
 - Video (90s): _add your Loom URL here_
 - Failure test: [`docs/FAILURE_TEST.md`](docs/FAILURE_TEST.md) · Thesis: [`docs/THESIS.md`](docs/THESIS.md)
 

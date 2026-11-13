@@ -6,19 +6,19 @@
   cobalt = authorised, vermilion = forbidden, everything else stays in ink.
 */
 @theme {
-  --color-bg: #e8e9e5;
-  --color-panel: #fbfbf9;
-  --color-raised: #f1f2ee;
-  --color-line: #d3d4ce;
-  --color-ink: #15161a;
-  --color-mute: #52565e;
-  --color-faint: #6c7078;
+  --color-bg: #08090b;
+  --color-panel: #0f1114;
+  --color-raised: #15181c;
+  --color-line: #24282e;
+  --color-ink: #eceef1;
+  --color-mute: #9aa0aa;
+  --color-faint: #848a94;
 
-  --color-execute: #1d3ccf;
-  --color-ask: #2f333b;
-  --color-defer: #2f333b;
-  --color-escalate: #2f333b;
-  --color-refuse: #c0301b;
+  --color-execute: #5c7cff;
+  --color-ask: #e3e5e9;
+  --color-defer: #e3e5e9;
+  --color-escalate: #e3e5e9;
+  --color-refuse: #ff5f45;
 
   --radius-xs: 0px;
   --radius-sm: 0px;
@@ -30,7 +30,7 @@
   --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
-:root { color-scheme: light; }
+:root { color-scheme: dark; }
 html, body { background: var(--color-bg); color: var(--color-ink); }
 body { font-family: var(--font-sans); -webkit-font-smoothing: antialiased; font-feature-settings: "ss01", "tnum"; }
 ::selection { background: color-mix(in srgb, var(--color-execute) 22%, transparent); }
@@ -45,7 +45,6 @@ body { font-family: var(--font-sans); -webkit-font-smoothing: antialiased; font-
 .stamp {
   position: absolute; right: 0; top: 50%;
   transform: translateY(-50%) rotate(-6deg);
-  mix-blend-mode: multiply;
   animation: stamp 0.42s cubic-bezier(0.2, 0.9, 0.25, 1.15) both;
 }
 @keyframes stamp {
@@ -64,7 +63,7 @@ body { font-family: var(--font-sans); -webkit-font-smoothing: antialiased; font-
 
 @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 .rise { animation: rise 0.35s cubic-bezier(0.16, 1, 0.3, 1) both; }
-@keyframes pulse-ring { 0% { box-shadow: 0 0 0 0 var(--ring, #15161a55); } 100% { box-shadow: 0 0 0 12px transparent; } }
+@keyframes pulse-ring { 0% { box-shadow: 0 0 0 0 var(--ring, #eceef155); } 100% { box-shadow: 0 0 0 12px transparent; } }
 .pulse { animation: pulse-ring 1.8s ease-out infinite; }
 @media (prefers-reduced-motion: reduce) { .rise, .pulse, .stamp { animation: none; } }
 
